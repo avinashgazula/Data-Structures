@@ -1,0 +1,4 @@
+avinash 55 cse
+qwerty 56 cse
+raj 33 mech
+abc 10 civil
