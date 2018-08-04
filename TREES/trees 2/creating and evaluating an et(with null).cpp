@@ -1,0 +1,159 @@
+#include<iostream>
+#include<cstring>
+#include<cstdlib>
+using namespace std;
+
+typedef struct btnode{
+	int tag;
+	union u1{
+		int opnd;
+		char optr;
+	}data;
+	struct btnode *lchild;
+	struct btnode *rchild;
+}* btptr;
+
+struct stack{
+	int top;
+	int size;
+	btptr elem[50];
+};
+
+void push(stack &s,btptr &t)
+{
+	
+	if(s.top==s.size-1)
+	{
+		cout<<"Stack is full\n";
+	}
+	else
+	{
+		s.top++;
+		s.elem[s.top]=t;
+	}
+}
+
+btptr pop(stack &s)
+{
+	if(s.top==-1)
+	{
+		cout<<"Stack is empty\n";
+	}
+	else
+	{
+		return s.elem[s.top--];
+	}
+}
+
+int op(int a,int b,char c)
+{
+	switch(c)
+	{
+		case '+':
+			return a+b;
+		case '-':
+			return a-b;
+		case '*':
+			return a*b;
+		case '/':
+			return a/b;
+	}
+}
+
+int isopnd(char ch){
+	if(ch>='0'&&ch<='9')
+	return 1;
+	
+	return 0;
+}
+
+int isoptr(char ch)
+{
+	if(ch=='+'||ch=='-'||ch=='*'||ch=='/')
+	return 1;
+	
+	return 0;
+}
+
+void create(btptr &t,stack &s,char p[],int len)
+{
+
+	int i;
+
+	for(i=0;i<len;i++)
+	{
+		if(isopnd(p[i]))
+		{
+			t= new btnode;
+			t->tag=0;
+			t->lchild=NULL;
+			t->rchild=NULL;
+			t->data.opnd=p[i]-'0';
+			push(s,t);
+		}
+		else
+		{
+			btptr o1=pop(s);
+			btptr o2=pop(s);
+			t=new btnode;
+			t->tag=1;
+			t->data.optr=p[i];
+			t->rchild=o1;
+			t->lchild=o2;
+			push(s,t);
+			
+		}
+	}
+}
+
+int eval(btptr &t)
+{
+	if(t->lchild==NULL&&t->rchild==NULL)
+	{
+		return t->data.opnd;
+	}
+	else
+	{
+		int a=eval(t->lchild);
+		int b=eval(t->rchild);
+		return op(a,b,t->data.optr);
+	}
+}
+
+void print(btptr t)
+{
+	if(t==NULL)
+	return;
+	else
+	{
+		
+		if(t->tag==0)
+		{
+			cout<<t->data.opnd;
+			
+		}
+		if(t->tag==1)
+		{
+			cout<<t->data.optr;
+			print(t->lchild);
+			print(t->rchild);
+		}
+		
+	}
+}
+
+int main()
+{
+	btptr t;
+	stack s;
+	s.top=-1;
+	s.size=30;
+	char p[30];
+	cout<<"Enter the postfix expression\n";
+	cin>>p;
+	int len=strlen(p);
+
+	create(t,s,p,len);
+	print(t);
+	cout<<"\nEvaluating the given postfix expression gives "<<eval(t);
+}
